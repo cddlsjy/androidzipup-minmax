@@ -45,6 +45,23 @@ jobs:
             echo "ℹ️ No gradle.properties file found, skipping."
           fi
 
+      
+      # ✅ 新增：确保 minSdkVersion >= 26，以支持自适应图标
+      - name: Ensure minSdkVersion >= 26 for adaptive-icon
+        run: |
+          if [ -f app/build.gradle.kts ]; then
+            sed -i 's/minSdkVersion = [0-9]\+/minSdkVersion = 26/g' app/build.gradle.kts
+            sed -i 's/minSdk = [0-9]\+/minSdk = 26/g' app/build.gradle.kts
+            echo "✅ Updated minSdkVersion to 26 in app/build.gradle.kts"
+          elif [ -f app/build.gradle ]; then
+            sed -i 's/minSdkVersion [0-9]\+/minSdkVersion 26/g' app/build.gradle
+            echo "✅ Updated minSdkVersion to 26 in app/build.gradle"
+          else
+            echo "⚠️ No build.gradle file found, skipping minSdk update."
+          fi
+      
+      
+      
       - name: Build APK
         run: gradle assembleDebug --stacktrace --no-daemon
 
