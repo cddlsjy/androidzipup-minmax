@@ -23,6 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ========== 自动模式：push 且只有一个 ZIP 时 ==========
       - name: 自动解压（仅当只有一个 ZIP 文件）
         if: github.event_name == 'push'
         run: |
@@ -59,6 +60,7 @@ jobs:
             exit 0
           fi
 
+      # ========== 手动模式：解压指定的 ZIP ==========
       - name: 手动解压指定的 ZIP 文件
         if: github.event_name == 'workflow_dispatch' && inputs.zip_file != ''
         run: |
@@ -87,6 +89,7 @@ jobs:
           rm -rf "$temp_dir"
           rm -f "$zipfile"
 
+      # ========== 手动移动子目录（可选） ==========
       - name: 移动手动指定的子目录到根目录
         if: github.event_name == 'workflow_dispatch' && inputs.subdir != ''
         run: |
@@ -102,6 +105,7 @@ jobs:
             exit 1
           fi
 
+      # ========== 提交所有更改 ==========
       - name: 提交更改
         run: |
           git config user.name "github-actions[bot]"
