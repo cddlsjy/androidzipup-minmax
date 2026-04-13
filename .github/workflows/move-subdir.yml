@@ -1,0 +1,42 @@
+name: Move Subdirectory to Root
+
+on:
+  workflow_dispatch:
+    inputs:
+      subdir:
+        description: '要移动到根目录的子目录名（例如 "dist" 或 "build/output"）'
+        required: true
+        default: ''
+
+jobs:
+  move-subdir:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 移动子目录内容到根目录
+        run: |
+          shopt -s dotglob
+          SUBDIR="${{ inputs.subdir }}"
+          if [ ! -d "$SUBDIR" ]; then
+            echo "❌ 错误：子目录 '$SUBDIR' 不存在"
+            echo "当前目录结构："
+            ls -la
+            exit 1
+          fi
+          
+          echo "📦 将 '$SUBDIR' 内的所有内容移动到根目录"
+          find "$SUBDIR" -mindepth 1 -maxdepth 1 -exec mv -t . {} + 2>/dev/null || true
+          rm -rf "$SUBDIR"
+          echo "✅ 移动完成"
+
+      - name: 提交更改
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --staged --quiet || git commit -m "将子目录 ${{ inputs.subdir }} 的内容提升到根目录"
+          git push
