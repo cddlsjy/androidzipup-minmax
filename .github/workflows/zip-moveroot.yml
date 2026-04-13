@@ -43,10 +43,17 @@ jobs:
             items=("$temp_dir"/*)
             if [ ${#items[@]} -eq 1 ] && [ -d "${items[0]}" ]; then
               subdir="${items[0]}"
+              echo "检测到顶层目录 '$subdir'，将其内容移动到根目录"
+              # 🔧 删除 ZIP 中的 .git 目录（避免与仓库自身的 .git 冲突）
+              if [ -d "$subdir/.git" ]; then
+                echo "发现并删除 ZIP 中的 .git 目录"
+                rm -rf "$subdir/.git"
+              fi
               mv "$subdir"/* . 2>/dev/null || true
               mv "$subdir"/.[!.]* . 2>/dev/null || true
               rm -rf "$subdir"
             else
+              echo "移动临时目录中的所有内容到根目录"
               mv "$temp_dir"/* . 2>/dev/null || true
               mv "$temp_dir"/.[!.]* . 2>/dev/null || true
             fi
@@ -56,7 +63,8 @@ jobs:
             echo "检测到多个 ZIP 文件 ($count 个)，为避免冲突，不自动解压。"
             echo "请手动运行 workflow_dispatch，并指定要解压的 ZIP 文件名。"
             echo "存在的 ZIP 文件："
-            printf '  - %s\n' "${zip_files[@]}"
+            printf '  - %s
+' "${zip_files[@]}"
             exit 0
           fi
 
@@ -79,10 +87,17 @@ jobs:
           items=("$temp_dir"/*)
           if [ ${#items[@]} -eq 1 ] && [ -d "${items[0]}" ]; then
             subdir="${items[0]}"
+            echo "检测到顶层目录 '$subdir'，将其内容移动到根目录"
+            # 🔧 删除 ZIP 中的 .git 目录
+            if [ -d "$subdir/.git" ]; then
+              echo "发现并删除 ZIP 中的 .git 目录"
+              rm -rf "$subdir/.git"
+            fi
             mv "$subdir"/* . 2>/dev/null || true
             mv "$subdir"/.[!.]* . 2>/dev/null || true
             rm -rf "$subdir"
           else
+            echo "移动临时目录中的所有内容到根目录"
             mv "$temp_dir"/* . 2>/dev/null || true
             mv "$temp_dir"/.[!.]* . 2>/dev/null || true
           fi
@@ -97,6 +112,11 @@ jobs:
           SUBDIR="${{ inputs.subdir }}"
           if [ -d "$SUBDIR" ]; then
             echo "移动子目录 '$SUBDIR' 的内容到根目录"
+            # 🔧 同样处理子目录中的 .git（避免冲突）
+            if [ -d "$SUBDIR/.git" ]; then
+              echo "发现并删除子目录中的 .git"
+              rm -rf "$SUBDIR/.git"
+            fi
             mv "$SUBDIR"/* . 2>/dev/null || true
             mv "$SUBDIR"/.[!.]* . 2>/dev/null || true
             rm -rf "$SUBDIR"
