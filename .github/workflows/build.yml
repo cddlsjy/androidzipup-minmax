@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-分支: [ main ]
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -36,7 +36,6 @@ jobs:
         with:
           gradle-version: '8.5'
 
-      # ✅ 新增步骤：移除 gradle.properties 中硬编码的 Java Home 配置
       - name: Remove hardcoded Java home in gradle.properties
         run: |
           if [ -f gradle.properties ]; then
