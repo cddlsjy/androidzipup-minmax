@@ -63,7 +63,7 @@ jobs:
       
       
       - name: Build APK
-        run: gradle assembleDebug --info --stacktrace --no-daemon
+        run: gradle assembleDebug --stacktrace --no-daemon
 
       - name: Find and upload APK
         id: find_apk
