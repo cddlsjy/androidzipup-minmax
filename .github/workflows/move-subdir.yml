@@ -4,39 +4,28 @@ on:
   workflow_dispatch:
     inputs:
       subdir:
-        description: '要移动到根目录的子目录名（例如 "dist" 或 "build/output"）'
+        description: '要移动到根目录的子目录名（例如 "dist"）'
         required: true
-        default: ''
 
 jobs:
-  move-subdir:
+  move:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: 移动子目录内容到根目录
+      - name: Move subdir content to root
         run: |
-          shopt -s dotglob
-          SUBDIR="${{ inputs.subdir }}"
-          if [ ! -d "$SUBDIR" ]; then
-            echo "❌ 错误：子目录 '$SUBDIR' 不存在"
-            echo "当前目录结构："
-            ls -la
+          if [ ! -d "${{ inputs.subdir }}" ]; then
+            echo "目录不存在"
             exit 1
           fi
-          
-          echo "📦 将 '$SUBDIR' 内的所有内容移动到根目录"
-          find "$SUBDIR" -mindepth 1 -maxdepth 1 -exec mv -t . {} + 2>/dev/null || true
-          rm -rf "$SUBDIR"
-          echo "✅ 移动完成"
-
-      - name: 提交更改
+          find "${{ inputs.subdir }}" -mindepth 1 -maxdepth 1 -exec mv -t . {} +
+          rm -rf "${{ inputs.subdir }}"
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git diff --staged --quiet || git commit -m "将子目录 ${{ inputs.subdir }} 的内容提升到根目录"
+          git diff --staged --quiet || git commit -m "Move ${{ inputs.subdir }} to root"
           git push
