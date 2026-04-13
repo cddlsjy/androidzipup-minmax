@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+分支: [ main ]
   workflow_dispatch:
 
 env:
@@ -63,7 +63,7 @@ jobs:
       
       
       - name: Build APK
-        run: gradle assembleDebug --stacktrace --no-daemon
+        run: gradle assembleDebug --info --stacktrace --no-daemon
 
       - name: Find and upload APK
         id: find_apk
